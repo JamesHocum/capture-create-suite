@@ -3,10 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Video, Download, Trash2, Film, Pause, Square, Play } from "lucide-react";
+import { Video, Download, Trash2, Film, Pause, Square, Play, Scissors, FileVideo } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { VideoEditor } from "@/components/VideoEditor";
+import { FormatConverter } from "@/components/FormatConverter";
 
 const Recordings = () => {
   const { user } = useAuth();
@@ -20,6 +22,10 @@ const Recordings = () => {
   const chunks = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout>();
   const [searchParams] = useSearchParams();
+  const [editingFile, setEditingFile] = useState<any | null>(null);
+  const [editingUrl, setEditingUrl] = useState("");
+  const [convertingFile, setConvertingFile] = useState<any | null>(null);
+  const [convertingUrl, setConvertingUrl] = useState("");
 
   const fetchFiles = async () => {
     if (!user) return;
@@ -46,76 +52,44 @@ const Recordings = () => {
         video: { displaySurface: "monitor", width: { ideal: 3840 }, height: { ideal: 2160 } } as any,
         audio: true,
       });
-
       const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
-        ? "video/webm;codecs=vp9"
-        : "video/webm";
-
+        ? "video/webm;codecs=vp9" : "video/webm";
       const recorder = new MediaRecorder(stream, { mimeType });
       chunks.current = [];
-
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.current.push(e.data);
-      };
-
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.current.push(e.data); };
       recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
         clearInterval(timerRef.current);
         const blob = new Blob(chunks.current, { type: mimeType });
         if (!user) return;
-
         const fileName = `${user.id}/${Date.now()}.webm`;
         await supabase.storage.from("recordings").upload(fileName, blob, { contentType: "video/webm" });
         await supabase.from("media_files").insert({
-          user_id: user.id,
-          name: `Recording ${new Date().toLocaleString()}`,
-          type: "recording",
-          format: "webm",
-          file_path: fileName,
-          file_size: blob.size,
-          duration: elapsed,
+          user_id: user.id, name: `Recording ${new Date().toLocaleString()}`,
+          type: "recording", format: "webm", file_path: fileName, file_size: blob.size, duration: elapsed,
         });
-
-        setRecording(false);
-        setPaused(false);
-        setElapsed(0);
-        toast({ title: "Recording saved!" });
-        fetchFiles();
+        setRecording(false); setPaused(false); setElapsed(0);
+        toast({ title: "Recording saved!" }); fetchFiles();
       };
-
-      // Handle user clicking "Stop sharing"
-      stream.getVideoTracks()[0].onended = () => {
-        if (recorder.state !== "inactive") recorder.stop();
-      };
-
+      stream.getVideoTracks()[0].onended = () => { if (recorder.state !== "inactive") recorder.stop(); };
       recorder.start(1000);
       mediaRecorder.current = recorder;
-      setRecording(true);
-      setElapsed(0);
+      setRecording(true); setElapsed(0);
       timerRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
     } catch { /* cancelled */ }
   };
 
   const togglePause = () => {
     if (!mediaRecorder.current) return;
-    if (paused) {
-      mediaRecorder.current.resume();
-      timerRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
-    } else {
-      mediaRecorder.current.pause();
-      clearInterval(timerRef.current);
-    }
+    if (paused) { mediaRecorder.current.resume(); timerRef.current = setInterval(() => setElapsed((e) => e + 1), 1000); }
+    else { mediaRecorder.current.pause(); clearInterval(timerRef.current); }
     setPaused(!paused);
   };
 
-  const stopRecording = () => {
-    mediaRecorder.current?.stop();
-  };
+  const stopRecording = () => { mediaRecorder.current?.stop(); };
 
   const formatTime = (s: number) => {
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const sec = s % 60;
+    const h = Math.floor(s / 3600); const m = Math.floor((s % 3600) / 60); const sec = s % 60;
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
   };
 
@@ -123,18 +97,35 @@ const Recordings = () => {
     const { data } = await supabase.storage.from("recordings").download(file.file_path);
     if (data) {
       const url = URL.createObjectURL(data);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = file.name + "." + file.format;
-      a.click();
+      const a = document.createElement("a"); a.href = url; a.download = file.name + "." + file.format; a.click();
       URL.revokeObjectURL(url);
     }
   };
 
   const handleTrash = async (id: string) => {
     await supabase.from("media_files").update({ is_trashed: true, trashed_at: new Date().toISOString() }).eq("id", id);
-    toast({ title: "Moved to trash" });
-    fetchFiles();
+    toast({ title: "Moved to trash" }); fetchFiles();
+  };
+
+  const openEditor = async (file: any) => {
+    const { data } = await supabase.storage.from("recordings").createSignedUrl(file.file_path, 3600);
+    if (data) { setEditingUrl(data.signedUrl); setEditingFile(file); }
+  };
+
+  const handleEditorSave = async (blob: Blob) => {
+    if (!user || !editingFile) return;
+    const fileName = `${user.id}/${Date.now()}_edited.webm`;
+    await supabase.storage.from("recordings").upload(fileName, blob, { contentType: "video/webm" });
+    await supabase.from("media_files").insert({
+      user_id: user.id, name: `${editingFile.name} (Edited)`,
+      type: "recording", format: "webm", file_path: fileName, file_size: blob.size,
+    });
+    toast({ title: "Edited recording saved!" }); setEditingFile(null); fetchFiles();
+  };
+
+  const openConverter = async (file: any) => {
+    const { data } = await supabase.storage.from("recordings").createSignedUrl(file.file_path, 3600);
+    if (data) { setConvertingUrl(data.signedUrl); setConvertingFile(file); }
   };
 
   return (
@@ -147,8 +138,7 @@ const Recordings = () => {
           </div>
           {!recording ? (
             <Button onClick={startRecording} className="gap-2">
-              <Video className="h-4 w-4" />
-              Start Recording
+              <Video className="h-4 w-4" /> Start Recording
             </Button>
           ) : (
             <div className="flex items-center gap-3">
@@ -190,6 +180,12 @@ const Recordings = () => {
                       </p>
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="icon" onClick={() => openEditor(file)} title="Edit">
+                        <Scissors className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => openConverter(file)} title="Convert to MP4">
+                        <FileVideo className="h-4 w-4" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleDownload(file)}>
                         <Download className="h-4 w-4" />
                       </Button>
@@ -204,6 +200,13 @@ const Recordings = () => {
           </div>
         )}
       </div>
+
+      {editingFile && (
+        <VideoEditor videoUrl={editingUrl} onSave={handleEditorSave} onClose={() => setEditingFile(null)} />
+      )}
+      {convertingFile && (
+        <FormatConverter videoUrl={convertingUrl} fileName={convertingFile.name} onClose={() => setConvertingFile(null)} />
+      )}
     </DashboardLayout>
   );
 };

@@ -2,16 +2,19 @@ import { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Camera, Download, Trash2, Image } from "lucide-react";
+import { Camera, Download, Trash2, Image, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { AnnotationEditor } from "@/components/AnnotationEditor";
 
 const Screenshots = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [files, setFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [annotatingFile, setAnnotatingFile] = useState<any | null>(null);
+  const [annotationImageUrl, setAnnotationImageUrl] = useState<string>("");
 
   const fetchFiles = async () => {
     if (!user) return;
@@ -81,6 +84,31 @@ const Screenshots = () => {
     fetchFiles();
   };
 
+  const openAnnotation = async (file: any) => {
+    const { data } = await supabase.storage.from("screenshots").createSignedUrl(file.file_path, 3600);
+    if (data) {
+      setAnnotationImageUrl(data.signedUrl);
+      setAnnotatingFile(file);
+    }
+  };
+
+  const handleAnnotationSave = async (blob: Blob) => {
+    if (!user || !annotatingFile) return;
+    const fileName = `${user.id}/${Date.now()}_annotated.png`;
+    await supabase.storage.from("screenshots").upload(fileName, blob, { contentType: "image/png" });
+    await supabase.from("media_files").insert({
+      user_id: user.id,
+      name: `${annotatingFile.name} (Annotated)`,
+      type: "screenshot",
+      format: "png",
+      file_path: fileName,
+      file_size: blob.size,
+    });
+    toast({ title: "Annotated screenshot saved!" });
+    setAnnotatingFile(null);
+    fetchFiles();
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6 max-w-6xl">
@@ -116,6 +144,9 @@ const Screenshots = () => {
                       <p className="text-xs text-muted-foreground">{new Date(file.created_at).toLocaleDateString()}</p>
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="icon" onClick={() => openAnnotation(file)} title="Annotate">
+                        <Pencil className="h-4 w-4" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleDownload(file)}>
                         <Download className="h-4 w-4" />
                       </Button>
@@ -130,6 +161,14 @@ const Screenshots = () => {
           </div>
         )}
       </div>
+
+      {annotatingFile && (
+        <AnnotationEditor
+          imageUrl={annotationImageUrl}
+          onSave={handleAnnotationSave}
+          onClose={() => setAnnotatingFile(null)}
+        />
+      )}
     </DashboardLayout>
   );
 };
