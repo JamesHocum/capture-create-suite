@@ -4,13 +4,14 @@ import {
   Video,
   FolderOpen,
   Trash2,
-  Settings,
   LogOut,
   Monitor,
+  Download,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useInstallPrompt } from "@/hooks/useInstallPrompt";
 import {
   Sidebar,
   SidebarContent,
@@ -39,6 +40,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { signOut } = useAuth();
+  const { isInstallable, install } = useInstallPrompt();
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/50">
@@ -76,7 +78,17 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-3">
+      <SidebarFooter className="p-3 space-y-1">
+        {isInstallable && (
+          <Button
+            variant="outline"
+            className="w-full justify-start text-primary border-primary/30 hover:bg-primary/10"
+            onClick={install}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {!collapsed && <span>Install App</span>}
+          </Button>
+        )}
         <Button
           variant="ghost"
           className="w-full justify-start text-muted-foreground hover:text-destructive"
