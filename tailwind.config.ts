@@ -57,6 +57,11 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        neon: {
+          orange: "hsl(var(--neon-orange))",
+          pink: "hsl(var(--neon-pink))",
+          cyan: "hsl(var(--neon-cyan))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,25 +70,35 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "neon-pulse": {
+          "0%, 100%": {
+            boxShadow: "0 0 5px hsl(var(--neon-orange) / 0.3), 0 0 15px hsl(var(--neon-orange) / 0.15)",
           },
-          to: {
-            height: "0",
+          "50%": {
+            boxShadow: "0 0 10px hsl(var(--neon-orange) / 0.5), 0 0 25px hsl(var(--neon-orange) / 0.3)",
+          },
+        },
+        "neon-text-pulse": {
+          "0%, 100%": {
+            textShadow: "0 0 5px hsl(var(--neon-orange) / 0.4), 0 0 15px hsl(var(--neon-orange) / 0.2)",
+          },
+          "50%": {
+            textShadow: "0 0 10px hsl(var(--neon-orange) / 0.7), 0 0 25px hsl(var(--neon-orange) / 0.4)",
           },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "neon-pulse": "neon-pulse 3s ease-in-out infinite",
+        "neon-text-pulse": "neon-text-pulse 3s ease-in-out infinite",
       },
     },
   },

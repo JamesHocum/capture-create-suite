@@ -10,14 +10,14 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   useOfflineCache(user?.id);
 
   return (
-    <div className="dark">
+    <div className="dark scanlines">
       <SidebarProvider>
-        <div className="min-h-screen flex w-full bg-background">
+        <div className="min-h-screen flex w-full bg-background cyber-grid relative">
           <AppSidebar />
           <div className="flex-1 flex flex-col">
             <OfflineBanner />
-            <header className="h-14 flex items-center border-b border-border/50 px-4">
-              <SidebarTrigger className="text-muted-foreground" />
+            <header className="h-14 flex items-center border-b border-border/50 px-4 backdrop-blur-sm bg-background/80">
+              <SidebarTrigger className="text-muted-foreground hover:text-primary transition-colors" />
             </header>
             <main className="flex-1 p-6">{children}</main>
           </div>

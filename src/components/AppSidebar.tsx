@@ -9,7 +9,6 @@ import {
   Download,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useInstallPrompt } from "@/hooks/useInstallPrompt";
 import {
@@ -38,24 +37,27 @@ const mainItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const location = useLocation();
   const { signOut } = useAuth();
   const { isInstallable, install } = useInstallPrompt();
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border/50">
+    <Sidebar collapsible="icon" className="border-r border-border/30">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
-          <Monitor className="h-6 w-6 text-primary shrink-0" />
+          <Monitor className="h-6 w-6 text-primary shrink-0 neon-text" />
           {!collapsed && (
-            <span className="text-lg font-bold text-foreground tracking-tight">ScreenCraft</span>
+            <span className="text-lg font-bold text-primary neon-text tracking-widest uppercase">
+              ScreenCraft
+            </span>
           )}
         </div>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="uppercase text-xs tracking-widest text-muted-foreground/70">
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
@@ -64,8 +66,8 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === "/dashboard"}
-                      className="hover:bg-muted/50"
-                      activeClassName="bg-primary/10 text-primary font-medium"
+                      className="hover:bg-primary/5 transition-all duration-300 uppercase text-sm tracking-wider"
+                      activeClassName="bg-primary/10 text-primary font-medium neon-border"
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
@@ -82,7 +84,7 @@ export function AppSidebar() {
         {isInstallable && (
           <Button
             variant="outline"
-            className="w-full justify-start text-primary border-primary/30 hover:bg-primary/10"
+            className="w-full justify-start text-primary border-primary/30 hover:bg-primary/10 neon-border uppercase text-xs tracking-wider"
             onClick={install}
           >
             <Download className="mr-2 h-4 w-4" />
@@ -91,7 +93,7 @@ export function AppSidebar() {
         )}
         <Button
           variant="ghost"
-          className="w-full justify-start text-muted-foreground hover:text-destructive"
+          className="w-full justify-start text-muted-foreground hover:text-destructive uppercase text-xs tracking-wider"
           onClick={signOut}
         >
           <LogOut className="mr-2 h-4 w-4" />

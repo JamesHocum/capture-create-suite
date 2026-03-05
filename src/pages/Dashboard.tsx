@@ -82,13 +82,13 @@ const Dashboard = () => {
     <DashboardLayout>
       <div className="space-y-8 max-w-6xl">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Welcome back. Capture something amazing.</p>
+          <h1 className="text-3xl font-bold text-primary neon-text uppercase tracking-wider">Dashboard</h1>
+          <p className="text-muted-foreground mt-1 tracking-wide">Welcome back. Capture something amazing.</p>
         </div>
 
         {/* Quick actions */}
         <div className="flex gap-4">
-          <Button onClick={handleScreenshot} size="lg" className="gap-2">
+          <Button onClick={handleScreenshot} size="lg" className="gap-2 neon-btn uppercase tracking-wider">
             <Camera className="h-5 w-5" />
             New Screenshot
           </Button>
@@ -96,62 +96,62 @@ const Dashboard = () => {
             onClick={() => navigate("/recordings?new=true")}
             size="lg"
             variant="secondary"
-            className="gap-2"
+            className="gap-2 uppercase tracking-wider border border-accent/30 hover:border-accent/60 hover:bg-accent/10 transition-all"
           >
-            <Video className="h-5 w-5" />
+            <Video className="h-5 w-5 text-accent" />
             New Recording
           </Button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-card/50 border-border/50">
+          <Card className="cyber-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Screenshots</CardTitle>
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Screenshots</CardTitle>
               <Image className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.screenshots}</div>
+              <div className="text-3xl font-bold text-primary neon-text">{stats.screenshots}</div>
             </CardContent>
           </Card>
-          <Card className="bg-card/50 border-border/50">
+          <Card className="cyber-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Recordings</CardTitle>
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Recordings</CardTitle>
               <Film className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.recordings}</div>
+              <div className="text-3xl font-bold text-accent">{stats.recordings}</div>
             </CardContent>
           </Card>
-          <Card className="bg-card/50 border-border/50">
+          <Card className="cyber-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">In Trash</CardTitle>
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-widest">In Trash</CardTitle>
               <Trash2 className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.trashed}</div>
+              <div className="text-3xl font-bold text-destructive">{stats.trashed}</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Recent files */}
         <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">Recent Captures</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4 uppercase tracking-wider">Recent Captures</h2>
           {recentFiles.length === 0 ? (
-            <Card className="bg-card/30 border-border/30 border-dashed">
+            <Card className="cyber-card border-dashed">
               <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <Clock className="h-10 w-10 mb-3 opacity-50" />
-                <p>No captures yet. Take your first screenshot or recording!</p>
+                <p className="tracking-wide">No captures yet. Take your first screenshot or recording!</p>
               </CardContent>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {recentFiles.map((file) => (
-                <Card key={file.id} className="bg-card/50 border-border/50 hover:border-primary/30 transition-colors cursor-pointer">
+                <Card key={file.id} className="cyber-card hover:border-primary/40 transition-all duration-300 cursor-pointer group">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       {file.type === "screenshot" ? (
-                        <Image className="h-8 w-8 text-primary shrink-0" />
+                        <Image className="h-8 w-8 text-primary shrink-0 group-hover:neon-text transition-all" />
                       ) : (
                         <Film className="h-8 w-8 text-accent shrink-0" />
                       )}
