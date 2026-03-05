@@ -53,41 +53,49 @@ const Auth = () => {
   };
 
   return (
-    <div className="dark min-h-screen bg-background flex">
+    <div className="dark min-h-screen bg-background flex scanlines cyber-grid relative overflow-hidden">
+      {/* Ambient glow orbs */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-neon-pulse pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-[100px] animate-neon-pulse pointer-events-none" style={{ animationDelay: '1.5s' }} />
+      <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-neon-cyan/5 rounded-full blur-[80px] animate-neon-pulse pointer-events-none" style={{ animationDelay: '0.8s' }} />
+
       {/* Left side - branding */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/10" />
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12 relative">
         <div className="relative z-10 text-center space-y-8">
           <div className="flex items-center justify-center gap-3">
-            <Monitor className="h-10 w-10 text-primary" />
-            <h1 className="text-4xl font-bold text-foreground tracking-tight">ScreenCraft</h1>
+            <Monitor className="h-12 w-12 text-primary neon-text" />
+            <h1 className="text-5xl font-bold text-primary neon-text tracking-widest uppercase">
+              ScreenCraft
+            </h1>
           </div>
-          <p className="text-muted-foreground text-lg max-w-md">
+          <p className="text-muted-foreground text-lg max-w-md font-light tracking-wide">
             Capture, annotate, and record your screen with professional-grade tools — right in your browser.
           </p>
-          <div className="flex gap-6 justify-center text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Camera className="h-5 w-5 text-primary" />
-              <span>Screenshots</span>
+          <div className="flex gap-8 justify-center text-muted-foreground">
+            <div className="flex items-center gap-2 group">
+              <Camera className="h-5 w-5 text-primary group-hover:neon-text transition-all" />
+              <span className="uppercase text-sm tracking-wider">Screenshots</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Video className="h-5 w-5 text-accent" />
-              <span>Recordings</span>
+            <div className="flex items-center gap-2 group">
+              <Video className="h-5 w-5 text-accent group-hover:neon-text transition-all" />
+              <span className="uppercase text-sm tracking-wider">Recordings</span>
             </div>
           </div>
+          {/* Decorative line */}
+          <div className="mx-auto w-48 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent neon-glow" />
         </div>
       </div>
 
       {/* Right side - form */}
-      <div className="flex-1 flex items-center justify-center p-6">
-        <Card className="w-full max-w-md border-border/50 bg-card/80 backdrop-blur">
+      <div className="flex-1 flex items-center justify-center p-6 relative z-10">
+        <Card className="w-full max-w-md cyber-card backdrop-blur-sm bg-card/90">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-2 lg:hidden mb-4">
               <Monitor className="h-7 w-7 text-primary" />
-              <span className="text-2xl font-bold text-foreground">ScreenCraft</span>
+              <span className="text-2xl font-bold text-primary neon-text uppercase tracking-widest">ScreenCraft</span>
             </div>
-            <CardTitle className="text-xl">{isLogin ? "Welcome back" : "Create your account"}</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl uppercase tracking-wider">{isLogin ? "Welcome back" : "Create your account"}</CardTitle>
+            <CardDescription className="tracking-wide">
               {isLogin ? "Sign in to access your captures" : "Start capturing for free"}
             </CardDescription>
           </CardHeader>
@@ -95,18 +103,19 @@ const Auth = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="displayName">Display Name</Label>
+                  <Label htmlFor="displayName" className="uppercase text-xs tracking-wider">Display Name</Label>
                   <Input
                     id="displayName"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Your name"
                     required={!isLogin}
+                    className="border-border/50 focus:border-primary/60 bg-background/50"
                   />
                 </div>
               )}
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="uppercase text-xs tracking-wider">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -114,10 +123,11 @@ const Auth = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
+                  className="border-border/50 focus:border-primary/60 bg-background/50"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="uppercase text-xs tracking-wider">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -126,9 +136,10 @@ const Auth = () => {
                   placeholder="••••••••"
                   required
                   minLength={6}
+                  className="border-border/50 focus:border-primary/60 bg-background/50"
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full neon-btn uppercase tracking-widest font-semibold" disabled={loading}>
                 {loading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
               </Button>
             </form>
@@ -136,7 +147,7 @@ const Auth = () => {
               {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
               <button
                 onClick={() => setIsLogin(!isLogin)}
-                className="text-primary hover:underline font-medium"
+                className="text-primary hover:underline font-medium uppercase tracking-wider"
               >
                 {isLogin ? "Sign up" : "Sign in"}
               </button>
